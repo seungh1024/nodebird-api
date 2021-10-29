@@ -7,7 +7,7 @@ const cors=require('cors');
 const url=require('url');
 
 const { verifyToken,apiLimiter}=require('./middlewares');
-const { Domain, User, Post , Hashtag}=require('../models');
+const { Domain, User, Post , Hashtag, sequelize}=require('../models');
 
 const router=express.Router();
 
@@ -124,5 +124,76 @@ router.get('/posts/hashtag/:title',verifyToken,apiLimiter,async(req,res)=>{
         });
     }
 });
+
+//팔로워나 팔로잉 목록을 가져오는 API만들기
+//팔로워 목록 보기
+router.get('/follower',verifyToken,apiLimiter,async(req,res,next)=>{
+    try{
+        const [result,metadata] = await sequelize.query(
+            `select nick from users 
+             where id in 
+             (select followerId from Follow 
+             where followingId = ${req.decoded.id});`
+        );
+        console.log(result);
+        console.log(req.decoded.id);
+        return res.status(200).json({
+            code:200,
+            payload:result
+        });
+    }catch(error){
+        console.error(error);
+        next(error);
+    }
+    
+})
+
+//팔로잉 하는 사람 목록 확인
+router.get('/following',verifyToken,async(req,res,next)=>{
+    try{
+        const [result,metadata] = await sequelize.query(
+            `select nick from users 
+             where id in 
+             (select followingId from Follow 
+             where followerId = ${req.decoded.id});`
+        );
+        console.log(result);
+        console.log(req.decoded.id);
+        return res.status(200).json({
+            code:200,
+            payload:result
+        });
+    }catch(error){
+        console.error(error);
+        next(error);
+    }
+    
+})
+
+//팔로워 팔로윙 찾는 기능을 이렇게 해도 됨
+//한 번에 모두 확인할 수 있게 했음
+router.get('/follow',verifyToken,async(req,res,next)=>{
+    try{
+        const user = await User.findOne({
+            where:{id:req.decoded.id}
+        });
+        const follower = await user.getFollowers({
+            attributes:['id','nick']
+        });
+        const following = await user.getFollowings({
+            attributes:['id','nick']
+        });
+
+        return res.json({
+            code:200,
+            follower,
+            following,
+        })
+    }catch(error){
+        console.error(error);
+        next(error);
+    }
+})
+
 
 module.exports = router;
