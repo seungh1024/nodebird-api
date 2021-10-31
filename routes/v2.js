@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const cors=require('cors');
 const url=require('url');
 
-const { verifyToken,apiLimiter}=require('./middlewares');
+const { verifyToken,apiLimiter,premiumApiLimiter}=require('./middlewares');
 const { Domain, User, Post , Hashtag, sequelize}=require('../models');
 
 const router=express.Router();
@@ -43,7 +43,21 @@ router.use(async(req,res,next)=>{
 //rotuer.use((req,res,next)=>{
 //    cors()(req,res,next);
 //}); 이거두개는 같은 역할을 함
-router.post('/token',apiLimiter,async(req,res)=>{
+
+//api limit 초과했는지 검사하는 라우터
+//use로 모두 이 라우터를 거친 후 실행됨 -> 공통 미들웨어
+router.use(async(req,res,next)=>{
+    const domain = await Domain.findOne({
+        where:{host: url.parse(req.get('origin')).host},
+    });
+    if(domain.type === 'premium'){
+        premiumApiLimiter(req,res,next);
+    }else{
+        apiLimiter(req,res,next);
+    }
+})
+
+router.post('/token',async(req,res)=>{
     const {clientSecret}=req.body;
     try{
         const domain = await Domain.findOne({
@@ -80,11 +94,11 @@ router.post('/token',apiLimiter,async(req,res)=>{
     }
 });
 
-router.get('/test',verifyToken,apiLimiter,(req,res)=>{
+router.get('/test',verifyToken,(req,res)=>{
     res.json(req.decoded);
 });
 
-router.get('/posts/my',apiLimiter,verifyToken,(req,res)=>{
+router.get('/posts/my',verifyToken,(req,res)=>{
     Post.findAll({where:{userId:req.decoded.id}})
         .then((posts)=>{
             console.log(posts);
@@ -102,7 +116,7 @@ router.get('/posts/my',apiLimiter,verifyToken,(req,res)=>{
         });
 });
 
-router.get('/posts/hashtag/:title',verifyToken,apiLimiter,async(req,res)=>{
+router.get('/posts/hashtag/:title',verifyToken,async(req,res)=>{
     try{
         const hashtag = await Hashtag.findOne({where:{title:req.params.title}});
         if(!hashtag){
@@ -127,7 +141,7 @@ router.get('/posts/hashtag/:title',verifyToken,apiLimiter,async(req,res)=>{
 
 //팔로워나 팔로잉 목록을 가져오는 API만들기
 //팔로워 목록 보기
-router.get('/follower',verifyToken,apiLimiter,async(req,res,next)=>{
+router.get('/follower',verifyToken,async(req,res,next)=>{
     try{
         const [result,metadata] = await sequelize.query(
             `select nick from users 
