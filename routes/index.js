@@ -31,6 +31,7 @@ router.post('/domain',isLoggedIn,async(req,res,next)=>{
             host:req.body.host,
             type:req.body.type,
             clientSecret:uuidv4(),
+            serverSecret:uuidv4(),
             //clientSecret의 값을 uuid패키지를 통해 생성하는데 그 중 4버전을 사용함->uuidv4
             //36자리 문자열 형식으로 생김
         });

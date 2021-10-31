@@ -34,12 +34,14 @@
           <th>도메인 주소</th>
           <th>타입</th>
           <th>클라이언트 비밀키</th>
+          <th>서버 비밀키</th>
         </tr>
         {% for domain in domains %}
           <tr>
             <td>{{domain.host}}</td>
             <td>{{domain.type}}</td>
             <td>{{domain.clientSecret}}</td>
+            <td>{{domain.serverSecret}}</td>
           </tr>
         {% endfor %}
       </table>

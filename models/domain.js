@@ -13,7 +13,11 @@ module.exports = class Domain extends Sequelize.Model{
                 //여기서는 free,preminum 중에서 하나의 종류만 선택할 수 있음 이를 어기면 에러 발생
                 allowNull:false,
             },
-            clientSecret:{
+            clientSecret:{ 
+                type:Sequelize.UUID,
+                allowNull:false,
+            },
+            serverSecret:{
                 type:Sequelize.UUID,
                 allowNull:false,
             },
