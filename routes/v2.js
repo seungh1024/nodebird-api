@@ -18,8 +18,6 @@ router.use(cors({
 //서버 간의 도메인이 다른 경우에는 이 옵션을 활성화하지 않으면 로그인 안될 수 있음
 
 router.use(async(req,res,next)=>{
-    console.log('sex');
-    console.log(url.parse(req.get('host')).href);
     const domain = await Domain.findOne({
         where:{host:url.parse(req.get('host')).href},
         //http같은 프로토콜을 떼어내기 위해 url.parse를 이용하였고
