@@ -6,7 +6,7 @@ const morgan =require('morgan');
 const session = require('express-session');
 const nunjucks= require('nunjucks');
 const dotenv=require('dotenv');
-
+const {swaggerUi,specs} = require('./modules/swagger');
 
 
 dotenv.config();
@@ -49,6 +49,8 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+app.use('/api-docs',swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use('/v1',v1);//만든라우터 연결
 app.use('/v2',v2);

@@ -31,6 +31,8 @@
     },
     "devDependencies": {
         "artillery": "^1.7.9",
-        "nodemon": "^2.0.14"
+        "nodemon": "^2.0.14",
+        "swagger-jsdoc": "^6.1.0",
+        "swagger-ui-express": "^4.1.6"
     }
 }

@@ -36,6 +36,7 @@ router.post('/join',isNotLoggedIn,async(req,res,next)=>{
     }
 });
 
+
 router.post('/login',isNotLoggedIn,(req,res,next)=>{
     //로그인 요청, 역시 로그인 되어있으면 안됨
     //전략->로그인 할 때의 동작 이라고 생각하면 됨

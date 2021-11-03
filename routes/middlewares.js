@@ -26,6 +26,7 @@ exports.isNotLoggedIn = (req,res,next)=>{
 //page라우터에서 사용할 것임
 
 exports.verifyToken = (req,res,next)=>{
+    console.log(req.headers.authorization);
     try{
         req.decoded=jwt.verify(req.headers.authorization,process.env.JWT_SECRET);
         //req.headers.authorization->요청헤더에 저장된 토큰
